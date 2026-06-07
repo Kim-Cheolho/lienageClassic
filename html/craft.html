@@ -64,8 +64,11 @@
       </header>
 
       <div class="flex-1 flex flex-col md:flex-row h-auto md:h-full md:overflow-hidden">
-        <aside id="left-panel" class="w-full md:w-[256px] h-auto md:h-full flex flex-col bg-zinc-50 dark:bg-zinc-900/50 border-b md:border-b-0 shrink-0 md:overflow-y-auto">
-          <div id="sidebar-list" class="flex-1 custom-scrollbar p-2 flex flex-col gap-1"></div>
+        <aside id="left-panel" class="relative w-full md:w-[240px] h-[35vh] md:h-full flex flex-col bg-zinc-50 dark:bg-zinc-900/50 border-b-4 md:border-b-0 border-zinc-200 dark:border-zinc-800 shrink-0 overflow-hidden">
+          <div id="sidebar-list" class="flex-1 custom-scrollbar p-2 flex flex-col gap-1 overflow-y-auto" onscroll="checkSidebarScroll(this)"></div>
+          <div id="scroll-indicator" class="pointer-events-none absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-t from-zinc-200 dark:from-zinc-900 to-transparent flex items-end justify-center md:hidden transition-opacity duration-300 opacity-0">
+             <span class="text-[10px] text-zinc-600 dark:text-zinc-400 font-bold mb-1 animate-bounce">⬇ 스크롤하여 더보기</span>
+          </div>
         </aside>
 
         <div id="resizer-left" class="hidden md:flex w-2 justify-center items-center cursor-col-resize bg-zinc-200 dark:bg-zinc-800 hover:bg-amber-500/50 transition-colors z-20 shrink-0 group">
@@ -78,7 +81,7 @@
           <div class="w-[2px] h-8 bg-zinc-400 dark:bg-zinc-500 group-hover:bg-white rounded-full"></div>
         </div>
 
-        <aside id="right-panel" class="w-full md:w-[340px] h-auto md:h-full flex flex-col bg-zinc-50 dark:bg-zinc-900 border-t md:border-t-0 shrink-0 md:overflow-y-auto"></aside>
+        <aside id="right-panel" class="w-full md:w-[300px] h-auto md:h-full flex flex-col bg-zinc-50 dark:bg-zinc-900 border-t md:border-t-0 shrink-0 md:overflow-y-auto"></aside>
       </div>
     </div>
 
@@ -117,7 +120,10 @@
 
       const calculateFinalMaterials = (itemId, requiredCount = 1) => {
         const recipe = recipes_db[itemId];
-        if (!recipe) return { [itemId]: requiredCount };
+        
+        if (!recipe || !recipe.materials || recipe.materials.length === 0) {
+          return { [itemId]: requiredCount };
+        }
 
         const finalMats = {};
         const yieldAmount = recipe.yield || 1;
@@ -137,7 +143,7 @@
         if (items_db[itemId].name.toLowerCase().includes(lowerKeyword)) return true;
 
         const recipe = recipes_db[itemId];
-        if (recipe) {
+        if (recipe && recipe.materials) {
           for (const mat of recipe.materials) {
             if (checkSearchMatch(mat.id, lowerKeyword)) return true;
           }
@@ -178,13 +184,44 @@
       }
 
       function getFilteredList() {
-        return Object.keys(items_db).filter((id) => {
+        const list = Object.keys(items_db).filter((id) => {
           if (!recipes_db[id]) return false;
           const item = items_db[id];
           if (state.selectedCategory !== "all" && item.category !== state.selectedCategory) return false;
           if (state.searchTerm && !checkSearchMatch(id, state.searchTerm)) return false;
           return true;
         });
+
+        // 🟢 NPC 이름으로 먼저 정렬하고, 같은 NPC 내에서 아이템 이름으로 정렬합니다.
+        return list.sort((a, b) => {
+          // 🟢 데이터에 NPC가 없을 경우 빈 문자열로 처리하여 에러를 방지합니다.
+          const npcA = recipes_db[a].npc || "";
+          const npcB = recipes_db[b].npc || "";
+
+          // 🟢 1차 정렬: NPC 이름 비교 (가나다순)
+          const npcCompare = npcA.localeCompare(npcB, 'ko-KR');
+          
+          if (npcCompare !== 0) {
+            return npcCompare; // NPC 이름이 다르면 NPC 기준으로 정렬
+          }
+
+          // 🟢 2차 정렬: NPC가 동일할 경우 아이템 이름 비교 (가나다순)
+          const nameA = items_db[a].name;
+          const nameB = items_db[b].name;
+          return nameA.localeCompare(nameB, 'ko-KR');
+        });
+      }
+
+      function checkSidebarScroll(elem) {
+        const indicator = document.getElementById("scroll-indicator");
+        if (!indicator) return;
+        
+        // 스크롤이 필요 없거나 맨 밑까지 내린 경우 숨김 처리
+        if (elem.scrollHeight <= elem.clientHeight || Math.ceil(elem.scrollTop + elem.clientHeight) >= elem.scrollHeight - 5) {
+          indicator.style.opacity = "0";
+        } else {
+          indicator.style.opacity = "1";
+        }
       }
 
       function renderSidebar() {
@@ -192,20 +229,44 @@
         document.getElementById("result-count").textContent = `결과: ${filteredList.length}건`;
 
         const container = document.getElementById("sidebar-list");
+        
+        container.classList.remove("gap-1");
+        container.classList.add("gap-2");
+
+        let currentThemeIndex = 1; 
+        let lastNpcName = null;
+        
+        const badgeThemes = [
+          "bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600/80 dark:text-indigo-400/80 border-indigo-100 dark:border-indigo-800/50",
+          "bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600/80 dark:text-emerald-400/80 border-emerald-100 dark:border-emerald-800/50"
+        ];
+
         container.innerHTML = filteredList
           .map((id) => {
             const item = items_db[id];
+            const recipe = recipes_db[id];
             const isSelected = id === state.selectedItemId;
             const classes = isSelected ? "bg-zinc-200 dark:bg-zinc-800 text-zinc-900 dark:text-white" : "hover:bg-zinc-100 dark:hover:bg-zinc-800/50 text-zinc-700 dark:text-zinc-300";
 
+            const currentNpc = recipe && recipe.npc ? recipe.npc : "";
+            if (currentNpc !== "" && currentNpc !== lastNpcName) {
+              currentThemeIndex = currentThemeIndex === 0 ? 1 : 0;
+              lastNpcName = currentNpc;
+            }
+            const currentBadgeClass = badgeThemes[currentThemeIndex];
+
             return `
-          <div onclick="selectItem('${id}')" class="flex items-center gap-3 p-2 rounded cursor-pointer transition-colors ${classes}">
-            ${getItemIconHTML(item, "w-7 h-7 text-xs")}
-            <span class="text-sm font-medium truncate">${item.name}</span>
+          <div onclick="selectItem('${id}')" class="flex items-center gap-3 py-2.5 px-3 rounded cursor-pointer transition-colors ${classes} overflow-hidden shrink-0">
+            ${getItemIconHTML(item, "w-8 h-8 text-xs shrink-0")}
+            <span class="text-sm font-medium truncate flex-1">${item.name}</span>
+            
+            ${recipe && recipe.npc ? `<span class="text-[10px] font-bold shrink-0 truncate max-w-[70px] px-1.5 py-0.5 rounded border ${currentBadgeClass}">${recipe.npc}</span>` : ""}
           </div>
         `;
           })
           .join("");
+          
+        setTimeout(() => checkSidebarScroll(container), 50);
       }
 
       function generateRecipeNodeHTML(itemId, requiredCount, depth = 0) {
@@ -223,7 +284,6 @@
 
         let html = `<div class="recipe-node w-full text-sm font-sans">`;
 
-        /* 🟢 4. 아이템 전체 클릭: onclick 이벤트를 최상위 div로 올리고, 텍스트 선택 방지를 위해 select-none 추가 */
         html += `
         <div ${hasChildren ? `onclick="toggleTreeNode(this.querySelector('[data-open]'))"` : ""} class="flex items-center py-1.5 px-2 rounded hover:bg-zinc-100 dark:bg-zinc-900 transition-colors group ${hasChildren ? "cursor-pointer select-none" : ""}" style="padding-left: ${depth * 20 + 8}px">
           
@@ -237,7 +297,11 @@
               ${yieldAmount > 1 ? `<span class="text-[10px] font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded leading-none">(1회 제작 시 ${yieldAmount}개 획득)</span>` : ""}
             </span>
             
-            ${recipe ? `<span class="ml-auto text-[10px] text-zinc-400 dark:text-zinc-500 flex items-center gap-1">${recipe.npc} (${recipe.location})</span>` : ""}
+            ${recipe && (recipe.npc || recipe.location) ? `
+            <div class="ml-auto flex items-center gap-1 shrink-0">
+              ${recipe.npc ? `<span class="text-[10px] md:text-[11px] font-bold bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 px-2 py-0.5 rounded shadow-sm whitespace-nowrap">${recipe.npc}</span>` : ""}
+              ${recipe.location ? `<span class="text-[10px] md:text-[11px] font-bold bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 px-2 py-0.5 rounded shadow-sm whitespace-nowrap">${recipe.location}</span>` : ""}
+            </div>` : ""}
           </div>
         </div>
       `;
@@ -293,10 +357,11 @@
         }
 
         const baseCraftTimes = 1;
-        const treeHTML = recipe.materials.map((mat) => generateRecipeNodeHTML(mat.id, mat.count * baseCraftTimes)).join("");
+        const treeMaterials = recipe.materials || [];
+        const treeHTML = treeMaterials.map((mat) => generateRecipeNodeHTML(mat.id, mat.count * baseCraftTimes)).join("");
 
         container.innerHTML = `
-        <div class="p-6 max-w-4xl mx-auto md:mx-0 w-full">
+        <div class="p-6 w-full">
           <div class="flex items-start gap-5 mb-8">
             ${getItemIconHTML(item, "w-16 h-16 text-3xl")}
             <div class="flex-1">
@@ -308,11 +373,11 @@
                 ${recipe.yield > 1 ? `<span class="text-xs px-2 py-0.5 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded border border-emerald-200 dark:border-emerald-800 mb-1 shrink-0">1회 제작 시 ${recipe.yield}개 획득</span>` : ""}
               </div>
               <div class="flex flex-wrap items-center gap-2 md:gap-4 text-xs text-zinc-600 dark:text-zinc-400 mt-3">
-                <div class="flex items-center gap-1.5 bg-zinc-100 dark:bg-zinc-900 px-2 py-1 rounded">
-                  <span class="text-amber-500">${icons.user}</span> ${recipe.npc}
+                <div class="flex items-center gap-1.5 bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-200 dark:border-indigo-800/50 px-2.5 py-1.5 rounded text-indigo-700 dark:text-indigo-300 font-bold shadow-sm">
+                  <span class="text-indigo-500">${icons.user}</span> ${recipe.npc || "정보 없음"}
                 </div>
-                <div class="flex items-center gap-1.5 bg-zinc-100 dark:bg-zinc-900 px-2 py-1 rounded">
-                  <span class="text-amber-500">${icons.mapPin}</span> ${recipe.location}
+                <div class="flex items-center gap-1.5 bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800/50 px-2.5 py-1.5 rounded text-emerald-700 dark:text-emerald-300 font-bold shadow-sm">
+                  <span class="text-emerald-500">${icons.mapPin}</span> ${recipe.location || "정보 없음"}
                 </div>
               </div>
             </div>
@@ -329,7 +394,7 @@
               </div>
             </div>
             <div class="flex flex-col gap-1">
-              ${treeHTML}
+              ${treeHTML ? treeHTML : `<div class="text-zinc-400 text-sm py-4">하위 제작 재료가 없는 항목입니다.</div>`}
             </div>
           </div>
         </div>
@@ -358,28 +423,25 @@
           totalCost += count * (Number(currentPrice) || 0);
 
           matHTML += `
-          <div class="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 p-3 rounded shadow-sm flex flex-col gap-2">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-2">
-                ${getItemIconHTML(mat, "w-6 h-6 text-xs")}
-                <span class="text-sm font-medium text-zinc-800 dark:text-zinc-200">${mat.name}</span>
+          <div class="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 p-3 rounded shadow-sm flex flex-col">
+            <div class="flex items-center justify-between gap-2">
+              <div class="flex items-center gap-2 flex-1 overflow-hidden">
+                ${getItemIconHTML(mat, "w-6 h-6 text-xs shrink-0")}
+                <span class="text-sm font-medium text-zinc-800 dark:text-zinc-200 truncate">${mat.name}</span>
+                <span class="text-xs font-bold text-amber-600 dark:text-amber-500 shrink-0 whitespace-nowrap">
+                  × ${count.toLocaleString()}
+                </span>
               </div>
-              <span class="text-xs font-bold text-amber-600 dark:text-amber-500 px-1.5 py-0.5 bg-amber-500/10 rounded">
-                ${count.toLocaleString()}개
-              </span>
-            </div>
-            <div class="flex items-center justify-between mt-1">
-              <span class="text-[10px] text-zinc-500">개당 단가 (아데나)</span>
               <input 
                 type="text" 
                 inputmode="numeric"
-                class="w-24 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded px-2 py-1 text-right text-xs text-zinc-900 dark:text-zinc-100 focus:border-amber-500 outline-none"
-                placeholder="0"
+                class="w-20 md:w-24 shrink-0 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded px-2 py-1 text-right text-xs text-zinc-900 dark:text-zinc-100 focus:border-amber-500 outline-none"
+                placeholder="단가"
                 value="${currentPrice ? currentPrice.toLocaleString() : ""}"
                 oninput="handlePriceInput('${id}', this)"
               />
             </div>
-            <div class="flex items-center justify-between mt-1 pt-2 border-t border-zinc-100 dark:border-zinc-800/50">
+            <div class="flex items-center justify-between mt-2 pt-2 border-t border-zinc-100 dark:border-zinc-800/50">
               <span class="text-[10px] text-zinc-500">재료 총액</span>
               <div class="text-right">
                 <span id="mat-total-${id}" class="text-xs font-bold text-zinc-700 dark:text-zinc-300">${(count * (Number(currentPrice) || 0)).toLocaleString()}</span>
@@ -398,7 +460,7 @@
         <div class="flex-1 p-4 flex flex-col gap-3">
           ${matHTML}
         </div>
-        <div class="p-4 bg-white dark:bg-zinc-950 border-t border-zinc-200 dark:border-zinc-800 shadow-[0_-4px_10px_rgba(0,0,0,0.05)] dark:shadow-[0_-4px_10px_rgba(0,0,0,0.2)] z-10 shrink-0 mt-auto">
+        <div class="p-4 bg-white dark:bg-zinc-950 border-t border-zinc-200 dark:border-zinc-800 shadow-[0_-4px_20px_rgba(0,0,0,0.1)] dark:shadow-[0_-4px_20px_rgba(0,0,0,0.4)] z-50 shrink-0 mt-auto sticky bottom-0">
           <div class="flex justify-between items-end">
             <span class="text-xs font-bold text-zinc-500">1회 총 제작 비용</span>
             <div class="text-right">
@@ -507,7 +569,6 @@
         const leftPanel = document.getElementById("left-panel");
         const rightPanel = document.getElementById("right-panel");
 
-        /* 🟢 2. PC 리사이징 개선: flex 환경에서도 width가 절대 무시되지 않도록 4중 강제 제어 */
         const updatePanelWidths = (panel, width) => {
           panel.style.width = width + "px";
           panel.style.minWidth = width + "px";
@@ -535,12 +596,14 @@
           if (!isResizingLeft && !isResizingRight) return;
 
           if (isResizingLeft) {
-            const newWidth = Math.max(200, Math.min(e.clientX, window.innerWidth / 2.5));
+            // 🟢 중앙 공간 확보를 위해, 좌측 패널 드래그 최대치를 화면의 1/3로 제한
+            const newWidth = Math.max(200, Math.min(e.clientX, window.innerWidth / 3));
             updatePanelWidths(leftPanel, newWidth);
           }
 
           if (isResizingRight) {
-            const newWidth = Math.max(250, Math.min(window.innerWidth - e.clientX, window.innerWidth / 2.5));
+            // 🟢 우측 패널 드래그 최대치도 화면의 1/3로 제한
+            const newWidth = Math.max(260, Math.min(window.innerWidth - e.clientX, window.innerWidth / 3));
             updatePanelWidths(rightPanel, newWidth);
           }
         });
@@ -554,8 +617,8 @@
             localStorage.setItem(
               "lcraft_panel_widths",
               JSON.stringify({
-                left: parseInt(leftPanel.style.width) || 256,
-                right: parseInt(rightPanel.style.width) || 340,
+                left: parseInt(leftPanel.style.width) || 240, // 🟢 기본값 256 -> 240
+                right: parseInt(rightPanel.style.width) || 300, // 🟢 기본값 340 -> 300
               }),
             );
           }

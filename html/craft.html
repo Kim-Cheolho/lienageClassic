@@ -108,8 +108,9 @@
         isDarkMode: true,
         searchTerm: "",
         selectedCategory: "weapon",
-        selectedItemId: "크로스보우",
+        selectedItemId: "싸울아비 장검",
         unitPrices: {},
+        previousCategory: "weapon",
       };
 
       const categories = [
@@ -430,6 +431,10 @@
 
       function setCategory(catId) {
         state.selectedCategory = catId;
+
+        if (!state.searchTerm) {
+          state.previousCategory = catId;
+        }
         renderCategories();
         renderSidebar();
       }
@@ -440,10 +445,17 @@
         renderRightPanel();
       }
       function handleSearch(e) {
-        state.searchTerm = e.target.value;
+        const value = e.target.value;
+        state.searchTerm = value;
 
-        if (state.searchTerm !== "") {
+        if (value !== "") {
+          if (state.selectedCategory !== "all") {
+            state.previousCategory = state.selectedCategory;
+          }
           state.selectedCategory = "all";
+          renderCategories();
+        } else {
+          state.selectedCategory = state.previousCategory || "all";
           renderCategories();
         }
 

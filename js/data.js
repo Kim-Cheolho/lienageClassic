@@ -78,7 +78,9 @@ async function processItemSheet(url, categoryName) {
       let val = rowData[key];
 
       if (key === "클래스" && val === "") {
-        val = "모두";
+        if (categoryName === "weapon" || categoryName === "armor" || categoryName === "accessory") {
+          val = "전체";
+        }
       }
 
       if (!ITEM_SYSTEM_COLS.includes(key) && val !== "") {

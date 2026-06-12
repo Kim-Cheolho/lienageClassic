@@ -348,7 +348,6 @@
         const inShowGrid = document.getElementById("showGrid");
         const gridOverlay = document.getElementById("gridOverlay");
 
-        // 🟢 누락되었다고 생각하셨던 이미지 에러/로드 처리 로직을 JS 영역에 명시적으로 복원
         const inGameBgImg = document.getElementById("inGameBgImg");
         inGameBgImg.onerror = function () {
           this.classList.add("hidden");
@@ -936,7 +935,6 @@
         });
         inBgColor.addEventListener("change", () => saveState());
 
-        // 🟢 인게임 마크 드래그 컨트롤(터치 포함) 로직은 전혀 지워지지 않았습니다.
         const dragMark = document.getElementById("dragMark");
         const previewContainer = document.getElementById("previewContainer");
         let isDraggingMark = false;
@@ -1119,8 +1117,6 @@
           gridOverlay.style.display = e.target.checked ? "block" : "none";
         });
 
-        // 🟢 다운로드 기능 및 배경 투명화 로직 역식 전혀 지워지지 않았습니다.
-        // drawComposite('#000000')를 통해 검정색으로 변환 후 다운로드 되며, 리니지 시스템 상 이는 곧 투명 처리를 의미합니다.
         document.getElementById("btnDownload").addEventListener("click", () => {
           drawComposite("#000000");
           const data = displayCtx.getImageData(0, 0, 16, 12).data;

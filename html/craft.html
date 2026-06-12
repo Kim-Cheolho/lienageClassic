@@ -40,7 +40,7 @@
     </style>
   </head>
   <body class="transition-colors duration-300 dark bg-zinc-50 dark:bg-zinc-950 text-zinc-800 dark:text-zinc-200" id="body-root">
-    <div class="md:h-[100dvh] min-h-screen flex flex-col font-sans md:overflow-hidden">
+    <div class="lg:h-[100dvh] min-h-screen flex flex-col font-sans lg:overflow-hidden">
       <header class="bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 shrink-0 flex flex-col z-10 transition-colors duration-300">
         <div class="min-h-[48px] py-2 px-4 flex flex-wrap items-center justify-between gap-3">
           <div class="flex-1 w-full flex items-center px-3 py-1.5 bg-zinc-100 dark:bg-zinc-950/50 border border-zinc-200 dark:border-zinc-700 rounded focus-within:border-amber-500 transition-colors">
@@ -52,25 +52,25 @@
         <div id="category-tabs" class="px-4 py-2 border-t border-zinc-100 dark:border-zinc-800 flex gap-2 overflow-x-auto no-scrollbar"></div>
       </header>
 
-      <div class="flex-1 flex flex-col md:flex-row h-auto md:h-full md:overflow-hidden">
-        <aside id="left-panel" class="relative w-full md:w-[240px] h-[35vh] md:h-full flex flex-col bg-white dark:bg-zinc-900/50 border-b-4 md:border-b-0 border-zinc-200 dark:border-zinc-800 shrink-0 overflow-hidden transition-colors duration-300">
+      <div class="flex-1 flex flex-col lg:flex-row h-auto lg:h-full lg:overflow-hidden">
+        <aside id="left-panel" class="relative w-full lg:w-[240px] h-[35vh] lg:h-full flex flex-col bg-white dark:bg-zinc-900/50 border-b-4 lg:border-b-0 border-zinc-200 dark:border-zinc-800 shrink-0 overflow-hidden transition-colors duration-300">
           <div id="sidebar-list" class="flex-1 custom-scrollbar p-2 flex flex-col gap-1 overflow-y-auto" onscroll="checkSidebarScroll(this)"></div>
-          <div id="scroll-indicator" class="pointer-events-none absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-t from-zinc-200 dark:from-zinc-900 to-transparent flex items-end justify-center md:hidden transition-opacity duration-300 opacity-0">
+          <div id="scroll-indicator" class="pointer-events-none absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-t from-zinc-200 dark:from-zinc-900 to-transparent flex items-end justify-center lg:hidden transition-opacity duration-300 opacity-0">
             <span class="text-[10px] text-zinc-600 dark:text-zinc-400 font-bold mb-1 animate-bounce">⬇ 스크롤하여 더보기</span>
           </div>
         </aside>
 
-        <div id="resizer-left" class="hidden md:flex w-2 justify-center items-center cursor-col-resize bg-zinc-200 dark:bg-zinc-800 hover:bg-amber-500/50 transition-colors z-20 shrink-0 group">
+        <div id="resizer-left" class="hidden lg:flex w-2 justify-center items-center cursor-col-resize bg-zinc-200 dark:bg-zinc-800 hover:bg-amber-500/50 transition-colors z-20 shrink-0 group">
           <div class="w-[2px] h-8 bg-zinc-400 dark:bg-zinc-500 group-hover:bg-white rounded-full"></div>
         </div>
 
-        <main id="main-content" class="w-full md:flex-1 flex flex-col h-auto md:h-full md:overflow-y-auto bg-white dark:bg-zinc-950 shrink-0 md:shrink transition-colors duration-300"></main>
+        <main id="main-content" class="w-full lg:flex-1 flex flex-col h-auto lg:h-full lg:overflow-y-auto bg-white dark:bg-zinc-950 shrink-0 lg:shrink transition-colors duration-300"></main>
 
-        <div id="resizer-right" class="hidden md:flex w-2 justify-center items-center cursor-col-resize bg-zinc-200 dark:bg-zinc-800 hover:bg-amber-500/50 transition-colors z-20 shrink-0 group">
+        <div id="resizer-right" class="hidden lg:flex w-2 justify-center items-center cursor-col-resize bg-zinc-200 dark:bg-zinc-800 hover:bg-amber-500/50 transition-colors z-20 shrink-0 group">
           <div class="w-[2px] h-8 bg-zinc-400 dark:bg-zinc-500 group-hover:bg-white rounded-full"></div>
         </div>
 
-        <aside id="right-panel" class="w-full md:w-[320px] h-auto md:h-full flex flex-col bg-zinc-50 dark:bg-zinc-900 border-t md:border-t-0 shrink-0 md:overflow-y-auto transition-colors duration-300"></aside>
+        <aside id="right-panel" class="w-full lg:w-[320px] h-auto lg:h-full flex flex-col bg-zinc-50 dark:bg-zinc-900 border-t lg:border-t-0 shrink-0 lg:overflow-y-auto transition-colors duration-300"></aside>
       </div>
     </div>
 
@@ -91,7 +91,6 @@
         }
       });
 
-      // // 🟢 이모지를 대체할 모든 100% SVG 벡터 아이콘 묶음 (새로고침(되돌리기) 아이콘 추가)
       const icons = {
         search: `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>`,
         chevronRight: `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>`,
@@ -115,6 +114,7 @@
         unitPrices: {},
         previousCategory: "weapon",
         buyMode: {},
+        craftQuantity: 1,
       };
 
       const categories = [
@@ -125,7 +125,9 @@
         { id: "material", name: "재료" },
       ];
 
-      const calculateFinalMaterials = (itemId, requiredCount = 1, isRoot = true) => {
+      // 1. 최종 재료 계산 메소드
+      // 🟢 1. 최종 재료 계산 로직 (물리 개수와 소수점 비율을 선택해서 계산할 수 있도록 투트랙 파라미터 적용)
+      const calculateFinalMaterials = (itemId, requiredCount = 1, isRoot = true, useCeil = true) => {
         const recipe = recipes_db[itemId];
 
         if ((!isRoot && state.buyMode[itemId]) || !recipe || !recipe.materials || recipe.materials.length === 0) {
@@ -134,10 +136,12 @@
 
         const finalMats = {};
         const yieldAmount = recipe.yield || 1;
-        const craftTimes = Math.ceil(requiredCount / yieldAmount);
+
+        // 🟢 표기용(useCeil=true)이면 무조건 올림 처리, 원가 계산용(useCeil=false)이면 소수점 비율 유지
+        const craftTimes = useCeil ? Math.ceil(requiredCount / yieldAmount) : requiredCount / yieldAmount;
 
         for (const mat of recipe.materials) {
-          const childMats = calculateFinalMaterials(mat.id, mat.count * craftTimes, false);
+          const childMats = calculateFinalMaterials(mat.id, mat.count * craftTimes, false, useCeil);
           for (const [childId, childCount] of Object.entries(childMats)) {
             finalMats[childId] = (finalMats[childId] || 0) + childCount;
           }
@@ -270,17 +274,16 @@
         let craftTimes = requiredCount;
         if (recipe) {
           yieldAmount = recipe.yield || 1;
+          // 🟢 화면 표기는 무조건 정수(올림) 개수로 보이게 합니다. (예: 0.25 -> 1)
           craftTimes = Math.ceil(requiredCount / yieldAmount);
         }
 
-        // // 🟢 1. 버튼 테마 변경: '직접 제작' 버튼이 비활성화처럼 보이지 않도록 파란색(Blue) 계열의 활성 테마를 적용합니다.
         const buttonTheme = isBuyMode
           ? "bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-800/50 hover:bg-blue-100 dark:hover:bg-blue-800/80 shadow-sm"
           : "bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-800/50 hover:bg-amber-100 dark:hover:bg-amber-800/80 shadow-sm";
 
         const buttonText = isBuyMode ? `${icons.hammer} 직접 제작` : `${icons.cart} 직접 구매`;
 
-        // // 🟢 2. 최상단 부모 노드에 있던 투명도(opacity-50) 클래스를 제거하여 버튼의 선명도를 확보합니다.
         let html = `<div class="recipe-node w-full text-sm font-sans">`;
 
         html += `
@@ -344,8 +347,6 @@
         if (item.stats && item.stats.length > 0) {
           const statsList = item.stats
             .map(
-              // 🔴 기존의 옵션 강제 넓이 확장(col-span-full) 클래스 제거
-              // 🟢 일반 스탯처럼 빈칸에 자연스럽게 채워지도록 렌더링
               (stat) => `
           <div>
             <span class="text-zinc-500 text-xs block mb-0.5">${stat.label}</span>
@@ -366,46 +367,59 @@
           </div>`;
         }
 
-        // 🟢 세트 효과 전용 박스 HTML 생성 로직 추가
         let setEffectHTML = "";
         if (item.setEffect) {
+          let effectDescHTML = "";
+          if (item.setEffect.description) {
+            effectDescHTML = `
+            <div class="col-span-full border-b border-zinc-200 dark:border-zinc-800 pb-3 mb-1">
+              <span class="text-zinc-500 text-xs block mb-0.5">세트 효과 전체 옵션</span>
+              <span class="font-semibold text-amber-600 dark:text-amber-400">${item.setEffect.description}</span>
+            </div>`;
+          }
+
+          let setEquipmentHeaderHTML =
+            item.setEffect.items.length > 0
+              ? `
+            <div class="col-span-full mt-1">
+              <span class="text-zinc-500 text-xs block">세트 구성 장비</span>
+            </div>
+          `
+              : "";
+
           const setItemsList = item.setEffect.items
             .map((setName) => {
-              // 등록된 아이템은 파란색 클릭 링크로, 미등록 아이템은 회색 텍스트로 처리
-              if (items_db[setName]) {
-                return `<span class="text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300 cursor-pointer underline underline-offset-2" onclick="selectItem('${setName}')">${setName}</span>`;
+              const setItem = items_db[setName];
+              if (setItem) {
+                return `
+                <div class="flex items-center gap-2 cursor-pointer group" onclick="selectItem('${setName}')">
+                  ${getItemIconHTML(setItem, "w-6 h-6 text-xs shrink-0")}
+                  <div class="overflow-hidden">
+                    <span class="font-medium text-blue-500 group-hover:text-blue-600 dark:text-blue-400 dark:group-hover:text-blue-300 transition-colors text-sm truncate block">${setItem.name}</span>
+                  </div>
+                </div>`;
               } else {
-                return `<span class="text-zinc-500 dark:text-zinc-400">${setName} (미등록)</span>`;
+                return `
+                <div class="flex items-center gap-2 opacity-50">
+                  <div class="w-6 h-6 bg-zinc-200 dark:bg-zinc-800 rounded flex items-center justify-center text-[10px]">?</div>
+                  <div class="overflow-hidden">
+                    <span class="font-medium text-zinc-400 text-sm truncate block">${setName} (미등록)</span>
+                  </div>
+                </div>`;
               }
             })
             .join("");
 
           setEffectHTML = `
           <div class="mb-8 border border-zinc-200 dark:border-zinc-800 rounded bg-zinc-50 dark:bg-zinc-900/50">
-            <div class="px-4 py-2 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-100/50 dark:bg-zinc-800/30">
-              <span class="text-xs font-bold text-zinc-700 dark:text-zinc-300">세트 효과</span>
+            <div class="px-4 py-2 border-b border-zinc-200 dark:border-zinc-800 flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-zinc-500"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m10 10 4 4"/><path d="m14 10-4 4"/></svg>
+              <span class="text-xs font-bold text-zinc-700 dark:text-zinc-300">세트 정보</span>
             </div>
-            <div class="p-4 flex flex-col gap-4 text-sm">
-              ${
-                item.setEffect.description
-                  ? `
-              <div class="flex gap-4">
-                <span class="text-zinc-500 min-w-[80px]">세트 효과</span>
-                <span class="font-medium text-zinc-900 dark:text-zinc-200">${item.setEffect.description}</span>
-              </div>`
-                  : ""
-              }
-              ${
-                item.setEffect.items.length > 0
-                  ? `
-              <div class="flex gap-4">
-                <span class="text-zinc-500 min-w-[80px]">세트 아이템</span>
-                <div class="flex flex-col gap-1.5 font-medium">
-                  ${setItemsList}
-                </div>
-              </div>`
-                  : ""
-              }
+            <div class="p-4 grid grid-cols-2 md:grid-cols-4 gap-y-3 gap-x-4 text-sm items-center">
+              ${effectDescHTML}
+              ${setEquipmentHeaderHTML}
+              ${setItemsList}
             </div>
           </div>`;
         }
@@ -413,7 +427,6 @@
         const treeMaterials = recipe.materials || [];
         const treeHTML = treeMaterials.map((mat) => generateRecipeNodeHTML(mat.id, mat.count * 1)).join("");
 
-        // 🟢 생성된 setEffectHTML을 화면 출력부에 추가
         container.innerHTML = `
         <div class="p-6 w-full">
           <div class="flex items-start gap-5 mb-8">
@@ -466,27 +479,36 @@
           return;
         }
 
-        const finalMaterials = calculateFinalMaterials(state.selectedItemId, 1, true);
+        const q = state.craftQuantity || 1;
+        const ceilMaterials = calculateFinalMaterials(state.selectedItemId, q, true, true);
+        const fracMaterials = calculateFinalMaterials(state.selectedItemId, q, true, false);
+
         let matHTML = "";
         let totalCost = 0;
 
-        Object.entries(finalMaterials).forEach(([id, count]) => {
-          if (count === 0) return;
+        Object.entries(ceilMaterials).forEach(([id, ceilCount]) => {
+          if (ceilCount === 0) return;
           const mat = items_db[id];
-
           const isAdena = id === "아데나" || mat.name === "아데나";
-
           const isBuyItem = !!state.buyMode[id];
 
+          const fracCount = fracMaterials[id] || 0;
           const currentPrice = isAdena ? 1 : state.unitPrices[id] || "";
-          totalCost += count * (Number(currentPrice) || 0);
+
+          const fixedFracCount = Number(fracCount.toFixed(2));
+          const displayCount = fixedFracCount.toLocaleString();
+
+          const matCost = fixedFracCount * (Number(currentPrice) || 0);
+          totalCost += matCost;
 
           let breakdownHTML = "";
           if (isAdena) {
-            const breakdown = getMaterialBreakdown(state.selectedItemId, id, 1, true);
+            // 🟢 추가: 아데나 분해 세부 내역 함수에도 연동 수량(q)을 매핑합니다.
+            const breakdown = getMaterialBreakdown(state.selectedItemId, id, q, true, false);
             const parts = Object.entries(breakdown).map(([bId, bCount]) => {
               const bName = items_db[bId] ? items_db[bId].name : bId;
-              const formatCount = bCount >= 10000 && bCount % 10000 === 0 ? bCount / 10000 + "만" : bCount.toLocaleString();
+              let formatCount = Number(bCount.toFixed(2));
+              formatCount = formatCount >= 10000 && formatCount % 10000 === 0 ? formatCount / 10000 + "만" : formatCount.toLocaleString();
               return `${bName} ${formatCount}`;
             });
 
@@ -496,8 +518,6 @@
           }
 
           const cardBorderClass = isBuyItem ? "border-amber-300 dark:border-amber-700/50 bg-amber-50/20 dark:bg-amber-900/10" : "border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950";
-
-          // // 🟢 4. 불필요한 '완제품' 텍스트를 제거하고 간결하게 '구매'로 표시하여 공간을 절약합니다.
           const badgeHTML = isBuyItem ? `<span class="ml-2 text-[10px] bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 border border-amber-300 dark:border-amber-700/50 px-1.5 py-0.5 rounded flex items-center gap-1 shrink-0">${icons.cart} 구매</span>` : "";
 
           matHTML += `
@@ -506,7 +526,7 @@
               <div class="flex items-center gap-2 flex-1 overflow-hidden">
                 ${getItemIconHTML(mat, "w-6 h-6 text-xs shrink-0")}
                 <span class="text-sm font-medium text-zinc-800 dark:text-zinc-200 truncate">${mat.name}</span>
-                <span class="text-xs font-bold text-amber-600 dark:text-amber-500 shrink-0 whitespace-nowrap">× ${count.toLocaleString()}</span>
+                <span class="text-xs font-bold text-amber-600 dark:text-amber-500 shrink-0 whitespace-nowrap">× ${ceilCount.toLocaleString()}</span>
                 ${badgeHTML}
               </div>
               ${isAdena ? "" : `<input type="text" inputmode="numeric" class="w-20 md:w-24 shrink-0 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded px-2 py-1 text-right text-xs text-zinc-900 dark:text-zinc-100 focus:border-amber-500 outline-none" placeholder="단가" value="${currentPrice ? currentPrice.toLocaleString() : ""}" oninput="handlePriceInput('${id}', this)"/>`}
@@ -527,9 +547,14 @@
             }
             
             <div class="flex items-center justify-between mt-2 pt-2 border-t border-zinc-100 dark:border-zinc-800/50">
-              <span class="text-[10px] text-zinc-500">재료 총액</span>
+              <div class="flex flex-col">
+                <span class="text-[10px] text-zinc-500">재료 총액</span>
+                <span id="mat-calc-desc-${id}" class="text-[10px] text-amber-600 dark:text-amber-500/80 font-medium mt-0.5">
+                  ${!isAdena && currentPrice ? `1개 단가 ${Number(currentPrice).toLocaleString()} × 실제 소모 비율 ${displayCount}개` : ""}
+                </span>
+              </div>
               <div class="text-right">
-                <span id="mat-total-${id}" class="text-xs font-bold text-zinc-700 dark:text-zinc-300">${(count * (Number(currentPrice) || 0)).toLocaleString()}</span>
+                <span id="mat-total-${id}" class="text-xs font-bold text-zinc-700 dark:text-zinc-300">${Math.round(matCost).toLocaleString()}</span>
                 <span class="text-[10px] text-zinc-400 ml-1">아데나</span>
               </div>
             </div>
@@ -540,16 +565,20 @@
         container.innerHTML = `
         <div class="p-4 border-b border-zinc-200 dark:border-zinc-800 flex items-center gap-2 bg-white dark:bg-zinc-950 shrink-0">
           <span class="text-amber-500">${icons.calculator}</span>
-          <h3 class="text-sm font-bold text-zinc-900 dark:text-zinc-100">1회 제작 필요 재료 및 단가</h3>
+          <h3 class="text-sm font-bold text-zinc-900 dark:text-zinc-100">제작 필요 재료 및 단가</h3>
         </div>
         <div class="flex-1 p-4 flex flex-col gap-3 overflow-y-auto">
           ${matHTML}
         </div>
-        <div class="p-4 bg-white dark:bg-zinc-950 border-t border-zinc-200 dark:border-zinc-800 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] dark:shadow-[0_-4px_20px_rgba(0,0,0,0.4)] z-50 shrink-0 mt-auto sticky bottom-0">
-          <div class="flex justify-between items-end">
-            <span class="text-xs font-bold text-zinc-500">1회 총 제작 비용</span>
+        <div class="p-4 bg-white dark:bg-zinc-950 border-t border-zinc-200 dark:border-zinc-800 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] dark:shadow-[0_-4px_20px_rgba(0,0,0,0.4)] z-50 shrink-0 mt-auto sticky bottom-0 flex flex-col gap-2">
+          <div class="flex justify-between items-center bg-zinc-50 dark:bg-zinc-900 p-2 rounded border border-zinc-200 dark:border-zinc-800">
+            <span class="text-xs font-bold text-zinc-500">목표 제작 갯수</span>
+            <input type="text" inputmode="numeric" id="craft-quantity-input" class="w-16 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-700 rounded px-2 py-0.5 text-center text-xs font-bold text-zinc-900 dark:text-zinc-100 focus:border-amber-500 outline-none" value="${q}" oninput="handleCraftQuantityInput(this)"/>
+          </div>
+          <div class="flex justify-between items-end pt-1">
+            <span class="text-xs font-bold text-zinc-500" id="total-cost-title">${q}개 총 제작 비용</span>
             <div class="text-right">
-              <span id="total-cost-display" class="text-xl font-black text-amber-600 dark:text-amber-500">${totalCost.toLocaleString()}</span>
+              <span id="total-cost-display" class="text-xl font-black text-amber-600 dark:text-amber-500">${Math.round(totalCost).toLocaleString()}</span>
               <span class="text-xs font-medium text-zinc-500 ml-1">아데나</span>
             </div>
           </div>
@@ -557,14 +586,15 @@
       `;
       }
 
-      function getMaterialBreakdown(itemId, targetMatId, requiredCount = 1, isRoot = true) {
+      // 2. 아데나 등 세부 분해 내역 메소드
+      function getMaterialBreakdown(itemId, targetMatId, requiredCount = 1, isRoot = true, useCeil = false) {
         let breakdown = {};
         const recipe = recipes_db[itemId];
 
         if ((!isRoot && state.buyMode[itemId]) || !recipe || !recipe.materials) return breakdown;
 
         const yieldAmount = recipe.yield || 1;
-        const craftTimes = Math.ceil(requiredCount / yieldAmount);
+        const craftTimes = useCeil ? Math.ceil(requiredCount / yieldAmount) : requiredCount / yieldAmount;
 
         recipe.materials.forEach((mat) => {
           const isTarget = mat.id === targetMatId || (items_db[mat.id] && items_db[mat.id].name === targetMatId);
@@ -573,7 +603,7 @@
             const amount = mat.count * craftTimes;
             breakdown[itemId] = (breakdown[itemId] || 0) + amount;
           } else {
-            const childBreakdown = getMaterialBreakdown(mat.id, targetMatId, mat.count * craftTimes, false);
+            const childBreakdown = getMaterialBreakdown(mat.id, targetMatId, mat.count * craftTimes, false, useCeil);
             Object.entries(childBreakdown).forEach(([childId, childCount]) => {
               breakdown[childId] = (breakdown[childId] || 0) + childCount;
             });
@@ -594,6 +624,7 @@
       }
       function selectItem(itemId) {
         state.selectedItemId = itemId;
+        state.craftQuantity = 1;
         renderSidebar();
         renderMain();
         renderRightPanel();
@@ -621,18 +652,50 @@
         state.unitPrices[id] = rawValue === "" ? 0 : Number(rawValue);
         inputElem.value = rawValue === "" ? "" : Number(rawValue).toLocaleString();
 
-        const finalMaterials = calculateFinalMaterials(state.selectedItemId, 1, true);
+        const q = state.craftQuantity || 1;
+        const fracMaterials = calculateFinalMaterials(state.selectedItemId, q, true, false);
         let newTotal = 0;
-        Object.entries(finalMaterials).forEach(([matId, count]) => {
+
+        Object.entries(fracMaterials).forEach(([matId, fracCount]) => {
           const isAdena = matId === "아데나" || (items_db[matId] && items_db[matId].name === "아데나");
           const price = isAdena ? 1 : state.unitPrices[matId] || 0;
 
-          const matTotal = count * price;
+          const fixedCount = Number(fracCount.toFixed(2));
+          const displayCount = fixedCount.toLocaleString();
+          const matTotal = fixedCount * price;
           newTotal += matTotal;
+
           const matTotalElem = document.getElementById(`mat-total-${matId}`);
-          if (matTotalElem) matTotalElem.textContent = matTotal.toLocaleString();
+          if (matTotalElem) matTotalElem.textContent = Math.round(matTotal).toLocaleString();
+
+          const matCalcDescElem = document.getElementById(`mat-calc-desc-${matId}`);
+          if (matCalcDescElem) {
+            if (!isAdena && price > 0) {
+              matCalcDescElem.textContent = `1개 단가 ${price.toLocaleString()} × 실제 소모 비율 ${displayCount}개`;
+            } else {
+              matCalcDescElem.textContent = "";
+            }
+          }
         });
-        document.getElementById("total-cost-display").textContent = newTotal.toLocaleString();
+        document.getElementById("total-cost-display").textContent = Math.round(newTotal).toLocaleString();
+      }
+
+      function handleCraftQuantityInput(inputElem) {
+        let rawValue = inputElem.value.replace(/[^0-9]/g, "");
+        if (rawValue === "0") rawValue = "1"; // 0개 제작 시도는 자동 방어
+        state.craftQuantity = rawValue === "" ? 1 : Number(rawValue);
+        inputElem.value = rawValue === "" ? "" : Number(rawValue).toLocaleString();
+
+        // 전체 구조 재렌더링
+        renderRightPanel();
+
+        // 하이엔드 UX: 내부 HTML이 통째로 갱신되며 인풋 포커스가 날아가는 현상을 즉시 다시 바인딩하여 막아줍니다.
+        const newInput = document.getElementById("craft-quantity-input");
+        if (newInput) {
+          newInput.focus();
+          const valLen = newInput.value.length;
+          newInput.setSelectionRange(valLen, valLen); // 커서를 글자 맨 뒤로 고정
+        }
       }
 
       function toggleTreeNode(btn) {
@@ -675,8 +738,9 @@
         };
 
         const savedWidths = JSON.parse(localStorage.getItem("lcraft_panel_widths")) || {};
-        if (savedWidths.left && window.innerWidth >= 768) updatePanelWidths(leftPanel, savedWidths.left);
-        if (savedWidths.right && window.innerWidth >= 768) updatePanelWidths(rightPanel, savedWidths.right);
+        // 🟢 수정: 반응형 통일 사이즈인 1024px 기준 적용
+        if (savedWidths.left && window.innerWidth >= 1024) updatePanelWidths(leftPanel, savedWidths.left);
+        if (savedWidths.right && window.innerWidth >= 1024) updatePanelWidths(rightPanel, savedWidths.right);
 
         let isResizingLeft = false;
         let isResizingRight = false;
@@ -700,7 +764,25 @@
             isResizingLeft = false;
             isResizingRight = false;
             document.body.classList.remove("is-resizing");
-            localStorage.setItem("lcraft_panel_widths", JSON.stringify({ left: parseInt(leftPanel.style.width) || 240, right: parseInt(rightPanel.style.width) || 300 }));
+            localStorage.setItem("lcraft_panel_widths", JSON.stringify({ left: parseInt(leftPanel.style.width) || 240, right: parseInt(rightPanel.style.width) || 320 }));
+          }
+        });
+
+        // 🟢 추가: 창 크기가 실시간으로 줄어들 때 CSS 반응형이 픽셀 고정값에 막히지 않도록 스타일 초기화 로직 부여
+        window.addEventListener("resize", () => {
+          if (window.innerWidth < 1024) {
+            leftPanel.style.width = "";
+            leftPanel.style.minWidth = "";
+            leftPanel.style.maxWidth = "";
+            leftPanel.style.flexBasis = "";
+            rightPanel.style.width = "";
+            rightPanel.style.minWidth = "";
+            rightPanel.style.maxWidth = "";
+            rightPanel.style.flexBasis = "";
+          } else {
+            const saved = JSON.parse(localStorage.getItem("lcraft_panel_widths")) || {};
+            updatePanelWidths(leftPanel, saved.left || 240);
+            updatePanelWidths(rightPanel, saved.right || 320);
           }
         });
       }
@@ -729,7 +811,7 @@
 
       async function init() {
         const isLoaded = await loadDatabaseFromSheet();
-        if (!isLoaded) return; // 로드 실패 시 화면 렌더링 중단
+        if (!isLoaded) return;
 
         validateDatabase();
         renderCategories();

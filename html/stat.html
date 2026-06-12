@@ -300,7 +300,6 @@
     </div>
 
     <script>
-      // 🟢 부모 Iframe(index.html)에서 보낸 테마 설정 이벤트 리스너
       window.addEventListener("message", (event) => {
         if (event.data.type === "THEME_CHANGE") {
           const html = document.documentElement;

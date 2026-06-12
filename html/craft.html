@@ -158,7 +158,12 @@
       };
 
       function getItemIconHTML(item, sizeClass = "w-8 h-8 text-sm") {
-        if (item.image) return `<img src="${item.image}" alt="${item.name}" class="${sizeClass} object-cover rounded bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700" />`;
+        if (item.image) {
+          const cleanFileName = item.image.replace(/^(\.\.\/img\/)/, "").trim();
+          const imgPath = cleanFileName.startsWith("http") ? cleanFileName : `../img/${cleanFileName}`;
+
+          return `<img src="${imgPath}" alt="${item.name}" class="${sizeClass} object-cover rounded bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700" />`;
+        }
         return `<div class="${sizeClass} bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded flex items-center justify-center">${item.icon || ""}</div>`;
       }
 
@@ -674,7 +679,10 @@
 
       document.getElementById("search-input").addEventListener("input", handleSearch);
 
-      function init() {
+      async function init() {
+        const isLoaded = await loadDatabaseFromSheet();
+        if (!isLoaded) return; // 로드 실패 시 화면 렌더링 중단
+
         validateDatabase();
         renderCategories();
         renderSidebar();

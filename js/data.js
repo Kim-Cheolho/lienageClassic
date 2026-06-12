@@ -1,299 +1,176 @@
-/**
- * ==========================================
- * Crafting 데이터베이스 (data.js) 작성 가이드
- * ==========================================
- *
- * [1] 카테고리 (category) 매핑 기준 (UI 탭과 연동)
- * - "weapon"    : 무기 탭
- * - "armor"     : 방어구 탭
- * - "accessory" : 장신구 탭
- * - "material"  : 재료 탭 (모든 하위 재료도 material로 통일할 것을 권장)
- *
- * [2] 아이템 데이터 추가 템플릿 (items_db)
- * "아이템명": {
- * id: "아이템명",         // (필수) 객체 키값과 동일한 한글 고유 ID
- * name: "출력될 이름",    // (필수) 화면에 표시될 아이템 이름
- * category: "weapon",     // (필수) 위 [1]의 매핑 기준 중 택 1
- * type: "활(양손)",       // (선택) 이름 하단에 표시될 분류
- * desc: "아이템 설명",    // (선택) 부가 설명
- * stats: [                // (선택) 상세 스탯 영역에 표시될 정보 (배열)
- * { label: "클래스", value: "기사/요정" },
- * { label: "타격치", value: "3/2" }
- * ],
- * icon: "🏹",             // (선택) 이미지가 없을 때 표시할 대체 이모지
- * image: "../img/123.png"  // (선택) 이미지 로컬 경로 또는 웹 URL 링크
- * }
- *
- * [3] 레시피 데이터 추가 템플릿 (recipes_db)
- * "제작할아이템명": {       // items_db에 존재하는 id와 반드시 일치해야 함
- * npc: "네루파",          // (선택) 제작 NPC 이름
- * location: "요정의숲",   // (선택) 제작 NPC의 위치 정보
- *              // 🟢 (선택) 1회 제작 시 나오는 결과물의 수량 (생략 시 1개)
- * materials: [            // (필수) 하위 필요 재료 배열
- * { id: "재료명1", count: 8 },  // items_db에 존재하는 재료 id와 필요 수량
- * { id: "재료명2", count: 3 }
- * ]
- * }
- */
+// // 🟢 전역 데이터베이스 객체
+let items_db = {};
+let recipes_db = {};
 
-const items_db = {
-	"아데나": { id: "아데나", name: "아데나", category: "base", icon: "", image: "../img/5.png" },
-	"장궁": { id: "장궁", name: "장궁", category: "weapon", type: "활(양손)", desc: "무기", stats: [{ label: "클래스", value: "기사/요정" }], icon: "", image: "../img/123.png" },
-	"싸울아비 장검": { id: "싸울아비 장검", name: "싸울아비 장검", category: "weapon", type: "검(한손)", desc: "무기", stats: [{ label: "클래스", value: "기사" }], icon: "🗡", image: "../img/112.png" },
-
-	"다이아몬드": { id: "다이아몬드", name: "다이아몬드", category: "base", icon: "", image: "../img/236.png" },
-	"고급 다이아몬드": { id: "고급 다이아몬드", name: "고급 다이아몬드", category: "base", icon: "", image: "../img/237.png" },
-	"최고급 다이아몬드": { id: "최고급 다이아몬드", name: "최고급 다이아몬드", category: "base", icon: "", image: "../img/238.png" },
-	"에메랄드": { id: "에메랄드", name: "에메랄드", category: "base", icon: "", image: "../img/239.png" },
-	"고급 에메랄드": { id: "고급 에메랄드", name: "고급 에메랄드", category: "base", icon: "", image: "../img/240.png" },
-	"최고급 에메랄드": { id: "최고급 에메랄드", name: "최고급 에메랄드", category: "base", icon: "", image: "../img/241.png" },
-	"루비": { id: "루비", name: "루비", category: "base", icon: "", image: "../img/242.png" },
-	"고급 루비": { id: "고급 루비", name: "고급 루비", category: "base", icon: "", image: "../img/243.png" },
-	"최고급 루비": { id: "최고급 루비", name: "최고급 루비", category: "base", icon: "", image: "../img/244.png" },
-	"사파이어": { id: "사파이어", name: "사파이어", category: "base", icon: "", image: "../img/245.png" },
-	"고급 사파이어": { id: "고급 사파이어", name: "고급 사파이어", category: "base", icon: "", image: "../img/246.png" },
-	"최고급 사파이어": { id: "최고급 사파이어", name: "최고급 사파이어", category: "base", icon: "", image: "../img/247.png" },
-
-	"마력의 돌": { id: "마력의 돌", name: "마력의 돌", category: "base", icon: "", image: "../img/235.png" },
-	"정령의 돌": { id: "정령의 돌", name: "정령의 돌", category: "base", icon: "", image: "../img/235.png" },
-	"페어리의 날개": { id: "페어리의 날개", name: "페어리의 날개", category: "material", icon: "", image: "../img/313.png" },
-	"페어리 더스트": { id: "페어리 더스트", name: "페어리 더스트", category: "material", icon: "", image: "../img/312.png" },
-
-	"미스릴 판금": { id: "미스릴 판금", name: "미스릴 판금", category: "material", icon: "", image: "../img/329.png" },
-	"오리하루콘 판금": { id: "오리하루콘 판금", name: "오리하루콘 판금", category: "material", icon: "", image: "../img/330.png" },
-	"미스릴 실": { id: "미스릴 실", name: "미스릴 실", category: "material", icon: "", image: "../img/307.png" },
-	"아라크네의 거미줄": { id: "아라크네의 거미줄", name: "아라크네의 거미줄", category: "material", icon: "️", image: "../img/326.png" },
-	"아라크네의 허물": { id: "아라크네의 허물", name: "아라크네의 허물", category: "material", icon: "️", image: "../img/306.png" },
-
-	"미스릴": { id: "미스릴", name: "미스릴", category: "material", icon: "", image: "../img/318.png" },
-	"미스릴 원석": { id: "미스릴 원석", name: "미스릴 원석", category: "material", icon: "", image: "../img/320.png" },
-	"오리하루콘": { id: "오리하루콘", name: "오리하루콘", category: "material", icon: "", image: "../img/319.png" },
-	"버섯포자의 즙": { id: "버섯포자의 즙", name: "버섯포자의 즙", category: "material", icon: "", image: "../img/82.png" },
-	"엔트의 줄기": { id: "엔트의 줄기", name: "엔트의 줄기", category: "material", icon: "", image: "../img/309.png" },
-	"엔트의 껍질": { id: "엔트의 껍질", name: "엔트의 껍질", category: "material", icon: "", image: "../img/311.png" },	
-	"엔트의 열매": { id: "엔트의 열매", name: "엔트의 열매", category: "material", icon: "", image: "../img/126.png" },	
-	"엘븐 와퍼": { id: "엘븐 와퍼", name: "엘븐 와퍼", category: "material", icon: "", image: "../img/130.png" },	
-	"판의 갈기털": { id: "판의 갈기털", name: "판의 갈기털", category: "material", icon: "", image: "../img/314.png" },
-	
-	"실": { id: "실", name: "실", category: "material", icon: "", image: "../img/308.png" },
-	"마법의 플룻": { id: "마법의 플룻", name: "마법의 플룻", category: "material", icon: "", image: "../img/43.png" },
-	"판의 뿔": { id: "판의 뿔", name: "판의 뿔", category: "material", icon: "", image: "../img/317.png" },
-
-	"단검신": { id: "단검신", name: "단검신", category: "material", icon: "", image: "../img/322.png" },
-	"장검신": { id: "장검신", name: "장검신", category: "material", icon: "", image: "../img/321.png" },
-	"오리하루콘 검신": { id: "오리하루콘 검신", name: "오리하루콘 검신", category: "material", icon: "", image: "../img/321.png" },
-	"미스릴 도금 뿔": { id: "미스릴 도금 뿔", name: "미스릴 도금 뿔", category: "material", icon: "", image: "../img/315.png" },
-	"오리하루콘 도금 뿔": { id: "오리하루콘 도금 뿔", name: "오리하루콘 도금 뿔", category: "material", icon: "", image: "../img/316.png" },
-
-	"하얀 옷감": { id: "하얀 옷감", name: "하얀 옷감", category: "material", icon: "", image: "../img/520.png" },
-	"파란 옷감": { id: "파란 옷감", name: "파란 옷감", category: "material", icon: "", image: "../img/517.png" },
-	"붉은 옷감": { id: "붉은 옷감", name: "붉은 옷감", category: "material", icon: "", image: "../img/519.png" },
-
-	"오우거의 피": { id: "오우거의 피", name: "오우거의 피", category: "material", icon: "", image: "../img/324.png" },
-	"파워 글로브": { id: "파워 글로브", name: "파워 글로브", category: "armor", icon: "", image: "../img/328.png" },
-	"티셔츠": { id: "티셔츠", name: "티셔츠", category: "armor", icon: "", image: "../img/110.png" },
-	"마법 망토": { id: "마법 망토", name: "마법 망토", category: "armor", icon: "", image: "../img/265.png" },
-	"보호 망토": { id: "보호 망토", name: "보호 망토", category: "armor", icon: "", image: "../img/30.png" },
-
-	"동물가죽": { id: "동물가죽", name: "동물가죽", category: "material", icon: "", image: "../img/446.png" },
-	"고급피혁": { id: "고급피혁", name: "고급피혁", category: "material", icon: "", image: "../img/455.png" },
-	"가죽모자": { id: "가죽모자", name: "가죽모자", category: "armor", icon: "", image: "../img/451.png" },
-	"가죽샌달": { id: "가죽샌달", name: "가죽샌달", category: "armor", icon: "", image: "../img/452.png" },
-	"가죽조끼": { id: "가죽조끼", name: "가죽조끼", category: "armor", icon: "", image: "../img/459.png" },
-	"가죽방패": { id: "가죽방패", name: "가죽방패", category: "armor", icon: "", image: "../img/449.png" },
-	"가죽투구": { id: "가죽투구", name: "가죽투구", category: "armor", icon: "", image: "../img/456.png" },
-	"가죽부츠": { id: "가죽부츠", name: "가죽부츠", category: "armor", icon: "", image: "../img/461.png" },
-	"중갑가죽조끼": { id: "중갑가죽조끼", name: "중갑가죽조끼", category: "armor", icon: "", image: "../img/462.png" },
-	"벨트": { id: "벨트", name: "벨트", category: "armor", icon: "", image: "../img/264.png" },
-	"벨트달린 가죽조끼": { id: "벨트달린 가죽조끼", name: "벨트달린 가죽조끼", category: "armor", icon: "", image: "../img/460.png" },
-	"징박은 가죽모자": { id: "징박은 가죽모자", name: "징박은 가죽모자", category: "armor", icon: "", image: "../img/445.png" },
-	"징박은 가죽샌달": { id: "징박은 가죽샌달", name: "징박은 가죽샌달", category: "armor", icon: "", image: "../img/447.png" },
-	"징박은 가죽조끼": { id: "징박은 가죽조끼", name: "징박은 가죽조끼", category: "armor", icon: "", image: "../img/458.png" },
-	"징박은 가죽방패": { id: "징박은 가죽방패", name: "징박은 가죽방패", category: "armor", icon: "", image: "../img/450.png" },
-	
-	"철괴": { id: "철괴", name: "철괴", category: "material", icon: "", image: "../img/454.png" },
-
-	"부츠": { id: "부츠", name: "부츠", category: "armor", icon: "", image: "../img/435.png" },
-	"투구": { id: "투구", name: "투구", category: "armor", icon: "", image: "../img/55.png"  },
-
-	"기사의 면갑": { id: "기사의 면갑", name: "기사의 면갑", category: "armor", icon: "", image: "../img/166.png" },
-	"장갑": { id: "장갑", name: "장갑", category: "armor", icon: "", image: "../img/141.png" },
-	"사각 방패": { id: "사각 방패", name: "사각 방패", category: "armor", icon: "", image: "../img/177.png" },
-	"판금 갑옷": { id: "판금 갑옷", name: "판금 갑옷", category: "armor", icon: "", image: "../img/73.png" },
-	"강철 장갑": { id: "강철 장갑", name: "강철 장갑", category: "armor", icon: "", image: "../img/506.png" },
-	"강철 면갑": { id: "강철 면갑", name: "강철 면갑", category: "armor", icon: "", image: "../img/507.png" },
-	"강철 방패": { id: "강철 방패", name: "강철 방패", category: "armor", icon: "", image: "../img/508.png" },
-	"강철 부츠": { id: "강철 부츠", name: "강철 부츠", category: "armor", icon: "", image: "../img/509.png" },
-	"강철 판금 갑옷": { id: "강철 판금 갑옷", name: "강철 판금 갑옷", category: "armor", icon: "", image: "../img/510.png" },
-
-	"화살": { id: "화살", name: "화살", category: "base", icon: "", image: "../img/7.png"  },
-	"미스릴 화살": { id: "미스릴 화살", name: "미스릴 화살", category: "base", icon: "", image: "../img/96.png"  },
-	"활": { id: "활", name: "활", category: "weapon", icon: "", image: "../img/20.png"  },
-	"요정족 활": { id: "요정족 활", name: "요정족 활", category: "weapon", icon: "", image: "../img/18.png"  },
-	"몽둥이": { id: "몽둥이", name: "몽둥이", category: "weapon", icon: "", image: "../img/31.png"  },
-	"요정족 망토": { id: "요정족 망토", name: "요정족 망토", category: "armor", icon: "", image: "../img/28.png" },
-	"짧은 부츠": { id: "짧은 부츠", name: "짧은 부츠", category: "armor", icon: "", image: "../img/65.png"  },
-	"활 골무": { id: "활 골무", name: "활 골무", category: "armor", icon: "", image: "../img/327.png"  },
-	"나무방패": { id: "나무방패", name: "나무방패", category: "armor", icon: "", image: "../img/97.png"  },
-	"나무 갑옷": { id: "나무 갑옷", name: "나무 갑옷", category: "armor", icon: "", image: "../img/109.png"  },	
-	"요정족 흉갑": { id: "요정족 흉갑", name: "요정족 흉갑", category: "armor", icon: "", image: "../img/302.png"  },
-	"크로스보우": { id: "크로스보우", name: "크로스보우", category: "weapon", type: "활(양손)", desc: "무기", stats: [{ label: "종류", value: "활(양손)" }, { label: "클래스", value: "기사/요정" }, { label: "타격치", value: "3/2" }, { label: "무게", value: "50" }, { label: "옵션", value: "원거리 대미지 +2, 원거리 명중 +3" }], icon: "", image: "../img/305.png" },
-	"요정족 가죽 투구": { id: "요정족 가죽 투구", name: "요정족 가죽 투구", category: "armor", icon: "", image: "../img/53.png"  },
-	"요정족 사슬 갑옷": { id: "요정족 사슬 갑옷", name: "요정족 사슬 갑옷", category: "armor", icon: "", image: "../img/281.png" },
-	"요정족 판금 갑옷": { id: "요정족 판금 갑옷", name: "요정족 판금 갑옷", category: "armor", icon: "", image: "../img/275.png"  },
-	"요정족 단검": { id: "요정족 단검", name: "요정족 단검", category: "weapon", icon: "", image: "../img/33.png"  },
-	"요정족 검": { id: "요정족 검", name: "요정족 검", category: "weapon", icon: "", image: "../img/325.png"  },
-	"레이피어": { id: "레이피어", name: "레이피어", category: "weapon", icon: "", image: "../img/104.png"  },
-	"전투 도끼": { id: "전투 도끼", name: "전투 도끼", category: "weapon", icon: "", image: "../img/9.png"  },
-	"귀사름": { id: "귀사름", name: "귀사름", category: "weapon", icon: "", image: "../img/48.png"  },
-	"엘름의 축복": { id: "엘름의 축복", name: "엘름의 축복", category: "armor", icon: "", image: "../img/267.png"  },
-	"요정족 방패": { id: "요정족 방패", name: "요정족 방패", category: "armor", icon: "", image: "../img/92.png"  },
-	"요정족 창": { id: "요정족 창", name: "요정족 창", category: "weapon", icon: "", image: "../img/99.png"  },
-	"포챠드": { id: "포챠드", name: "포챠드", category: "weapon", icon: "", image: "../img/41.png"  },
-	"메일 브레이커": { id: "메일 브레이커", name: "메일 브레이커", category: "weapon", icon: "", image: "../img/276.png"  },
-	"나무 줄기 옷": { id: "나무 줄기 옷", name: "나무 줄기 옷", category: "armor", icon: "", image: "../img/51.png"  },
-	
-	"수룡 비늘": { id: "수룡 비늘", name: "수룡 비늘", category: "base", icon: "", image: "../img/547.png"  },
-	"지룡 비늘": { id: "지룡 비늘", name: "지룡 비늘", category: "base", icon: "", image: "../img/548.png"  },
-	"화룡 비늘": { id: "화룡 비늘", name: "화룡 비늘", category: "base", icon: "", image: "../img/549.png"  },
-	"풍룡 비늘": { id: "풍룡 비늘", name: "풍룡 비늘", category: "base", icon: "", image: "../img/550.png"  },
-	"인어의 비늘": { id: "인어의 비늘", name: "인어의 비늘", category: "base", icon: "", image: "../img/556.png"  },
-	"빛나는 비늘": { id: "빛나는 비늘", name: "빛나는 비늘", category: "base", icon: "", image: "../img/1171.png"  },
-	"에바의 축복": { id: "에바의 축복", name: "에바의 축복", category: "material", icon: "", image: "../img/557.png"  },
-	"수중 부츠": { id: "수중 부츠", name: "수중 부츠", category: "armor", icon: "", image: "../img/704.png"  },
-	"에바의 방패": { id: "에바의 방패", name: "에바의 방패", category: "armor", icon: "", image: "../img/1203.png"  },
-	"아시타지오의 재": { id: "아시타지오의 재", name: "아시타지오의 재", category: "base", icon: "", image: "../img/591.png"  },
-	
-	"싸울아비 장검": { id: "싸울아비 장검", name: "싸울아비 장검", category: "weapon", icon: "", image: "../img/112.png"  },
-	"수룡 비늘 갑옷": { id: "수룡 비늘 갑옷", name: "수룡 비늘 갑옷", category: "armor", icon: "", image: "../img/539.png"  },
-	"지룡 비늘 갑옷": { id: "지룡 비늘 갑옷", name: "지룡 비늘 갑옷", category: "armor", icon: "", image: "../img/540.png"  },
-	"화룡 비늘 갑옷": { id: "화룡 비늘 갑옷", name: "화룡 비늘 갑옷", category: "armor", icon: "", image: "../img/541.png"  },
-	"풍룡 비늘 갑옷": { id: "풍룡 비늘 갑옷", name: "풍룡 비늘 갑옷", category: "armor", icon: "", image: "../img/542.png"  },
-	
-	"마법사 모자": { id: "마법사 모자", name: "마법사 모자", category: "armor", icon: "", image: "../img/526.png"  },
-	"마법사 옷": { id: "마법사 옷", name: "마법사 옷", category: "armor", icon: "", image: "../img/527.png"  },
-	
-	"낡은 신체의 벨트": { id: "낡은 신체의 벨트", name: "낡은 신체의 벨트", category: "accessory", icon: "", image: "../img/631.png"  },
-	"낡은 정신의 벨트": { id: "낡은 정신의 벨트", name: "낡은 정신의 벨트", category: "accessory", icon: "", image: "../img/632.png"  },
-	"낡은 영혼의 벨트": { id: "낡은 영혼의 벨트", name: "낡은 영혼의 벨트", category: "accessory", icon: "", image: "../img/633.png"  },
-	"신체의 벨트": { id: "신체의 벨트", name: "신체의 벨트", category: "accessory", icon: "", image: "../img/634.png"  },
-	"정신의 벨트": { id: "정신의 벨트", name: "정신의 벨트", category: "accessory", icon: "", image: "../img/635.png"  },
-	"영혼의 벨트": { id: "영혼의 벨트", name: "영혼의 벨트", category: "accessory", icon: "", image: "../img/636.png"  },
-	"빛나는 신체의 벨트": { id: "빛나는 신체의 벨트", name: "빛나는 신체의 벨트", category: "accessory", icon: "", image: "../img/1168.png"  },
-	"빛나는 정신의 벨트": { id: "빛나는 정신의 벨트", name: "빛나는 정신의 벨트", category: "accessory", icon: "", image: "../img/1169.png"  },
-	"빛나는 영혼의 벨트": { id: "빛나는 영혼의 벨트", name: "빛나는 영혼의 벨트", category: "accessory", icon: "", image: "../img/1170.png"  },
-
+// // 🟢 1. 구글 시트에서 5개의 탭(무기, 방어구, 장신구, 재료, 레시피)별로 발급받은 CSV 링크를 각각 넣어주세요.
+const CSV_LINKS = {
+  weapon:
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vQWs-z11xovyh5nZXXYjI-bsbl2PosmBM3SQPQrQDZefquGCW8hF_UAraVl6arynMAAd9npzE1Zk5v4/pub?output=csv",
+  armor:
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vTD1PGa-37lEOkLalru3wz74OFXtYb1OGrN2cXVbN0ARU4jJXoYKLVG-TXX7sr_2uYShyHKLnn-zXl5/pub?output=csv",
+  accessory:
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vTPQ2pDBMWZxedMQzI6zCztAPg7A0BiThJsLnT3KpBMILzWAglSxjFcjaj6_msNiurJUvUYbqCeOIAy/pub?output=csv",
+  material:
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vQG1PEgePbi1Lz8J5dH8uGhj2bOI6Ty7fZiT2t0Gs6QhttJy8PGCm7CtqeH5o4ZF59EhMwBhJoL5VZX/pub?output=csv",
+  recipe:
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vTlpXNyQitzPZ7u9THzc8UBlMR1lNEcBzXOkjefIJFUcd52P4HMU3mrlqgMo0xYGeB6iCUu0qQlW1e9/pub?output=csv", // // 🟢 레시피 전용 시트 링크 추가
 };
 
-const recipes_db = {
-	"정령의 돌": { npc: "요정의 숲 바닥", location: "요정의숲"},
-	"엔트의 줄기": { npc: "엔트", location: "요정의숲"},
-	"엔트의 껍질": { npc: "엔트", location: "요정의숲", materials: [ { id: "버섯포자의 즙", count: 1 }] },
-	"엔트의 열매": { npc: "엔트", location: "요정의숲"},
-	"판의 갈기털": { npc: "판의 갈기털", location: "요정의숲"},
-	"미스릴 원석": { npc: "좀비,오크,돌골렘", location: "요정의숲,요정의던전1층"},
-	"아시타지오의 재": { npc: "아시타지오", location: "화룡의 둥지"},
-	"오우거의 피": { npc: "오우거", location: "아덴 월드"},
-	"고급피혁": { npc: "빈센트", location: "기란", materials: [ { id: "동물가죽", count: 20 }] },
-	"붉은 옷감": { npc: "에버트", location: "기란"},
-	"파란 옷감": { npc: "에버트", location: "기란"},
-	"하얀 옷감": { npc: "에버트", location: "기란"},
-	
-	"미스릴": { npc: "페어리, 페어리 퀸", location: "요정의숲", yield: 20, materials: [{ id: "미스릴 원석", count: 1 }] },
-	"오리하루콘": { npc: "페어리 퀸", location: "요정의숲", materials: [{ id: "미스릴", count: 10 }] },
-	"페어리의 날개": { npc: "페어리, 페어리 퀸", location: "요정의숲", materials: [{ id: "정령의 돌", count: 2 }, { id: "미스릴 실", count: 5 }] },
-	
-	"버섯포자의 즙": { npc: "펑거스", location: "요정의숲,요정의던전"},
-	"페어리 더스트": { npc: "네루파", location: "요정의숲", yield: 20, materials: [{ id: "정령의 돌", count: 1 }] },
-	"화살": { npc: "네루파", location: "요정의숲", materials: [{ id: "엔트의 줄기", count: 1 }] },
-	"미스릴 화살": { npc: "네루파", location: "요정의숲", materials: [{ id: "엔트의 줄기", count: 1 }, { id: "미스릴", count: 1 }] },
-	"활": { npc: "네루파", location: "요정의숲", materials: [{ id: "엔트의 줄기", count: 1 }, { id: "실", count: 5 }] },
-	"요정족 활": { npc: "네루파", location: "요정의숲", materials: [{ id: "엔트의 줄기", count: 10 }, { id: "미스릴 원석", count: 1 }, { id: "실", count: 1 }, { id: "아라크네의 허물", count: 2 }] },
-	"몽둥이": { npc: "네루파", location: "요정의숲", materials: [{ id: "엔트의 줄기", count: 10 }, { id: "아라크네의 거미줄", count: 5 }] },
-	"요정족 망토": { npc: "네루파", location: "요정의숲", materials: [{ id: "마력의 돌", count: 2 }, { id: "정령의 돌", count: 6 }, { id: "미스릴 실", count: 10 }] },
-	"짧은 부츠": { npc: "네루파", location: "요정의숲", materials: [{ id: "엔트의 껍질", count: 2 }, { id: "실", count: 4 }] },
-	"활 골무": { npc: "네루파", location: "요정의숲", materials: [{ id: "미스릴 실", count: 20 }, { id: "엔트의 껍질", count: 3 }] },
-	"부츠": { npc: "네루파", location: "요정의숲", materials: [{ id: "아라크네의 허물", count: 2 }, { id: "실", count: 10 }] },
-	"파워 글로브": { npc: "네루파", location: "요정의숲", materials: [{ id: "아라크네의 허물", count: 5 }, { id: "미스릴 실", count: 20 }, { id: "오우거의 피", count: 1 }, { id: "고급 다이아몬드", count: 1 }] },  
-	"나무방패": { npc: "네루파", location: "요정의숲", materials: [{ id: "엔트의 껍질", count: 1 }, { id: "아라크네의 거미줄", count: 5 }, { id: "엔트의 줄기", count: 5 }] },
-	"나무 갑옷": { npc: "네루파", location: "요정의숲", materials: [{ id: "엔트의 껍질", count: 2 }, { id: "판의 갈기털", count: 5}] },
-	"요정족 흉갑": { npc: "네루파", location: "요정의숲", materials: [{ id: "아라크네의 허물", count: 2 }, { id: "실", count: 10 }] },
-	"크로스보우": { npc: "네루파", location: "요정의숲", materials: [{ id: "페어리의 날개", count: 8 }, { id: "오리하루콘 판금", count: 3 }, { id: "미스릴 실", count: 20 }, { id: "아라크네의 거미줄", count: 30 }] },
-	"요정족 가죽 투구": { npc: "네루파", location: "요정의숲", materials: [{ id: "페어리의 날개", count: 1 }, { id: "엔트의 껍질", count: 2 }, { id: "판의 갈기털", count: 10 }, { id: "아라크네의 거미줄", count: 20 }] },
-	"요정족 사슬 갑옷": { npc: "네루파", location: "요정의숲", materials: [{ id: "미스릴 실", count: 80 }, { id: "미스릴 판금", count: 4 }] },
-	"요정족 판금 갑옷": { npc: "네루파", location: "요정의숲", materials: [{ id: "오리하루콘 판금", count: 1 }, { id: "미스릴 실", count: 20 }, { id: "최고급 다이아몬드", count: 1 }] },
-	"요정족 단검": { npc: "네루파", location: "요정의숲", materials: [{ id: "엔트의 줄기", count: 5 }, { id: "미스릴 원석", count: 1 }] },
-	"요정족 검": { npc: "네루파", location: "요정의숲", materials: [{ id: "장검신", count: 1 }, { id: "엔트의 줄기", count: 5 }, { id: "미스릴", count: 150 }, { id: "아라크네의 거미줄", count: 50 }] },
-	"레이피어": { npc: "네루파", location: "요정의숲", materials: [{ id: "오리하루콘 검신", count: 1 }, { id: "페어리의 날개", count: 2 }, { id: "오리하루콘", count: 50 }, { id: "고급 루비", count: 1 }, { id: "아라크네의 거미줄", count: 50 }] },
-	"전투 도끼": { npc: "네루파", location: "요정의숲", materials: [{ id: "단검신", count: 1 }, { id: "아라크네의 거미줄", count: 5 }, { id: "엔트의 줄기", count: 10 }, { id: "미스릴 원석", count: 3 }] },
-	"귀사름": { npc: "네루파", location: "요정의숲", materials: [{ id: "단검신", count: 1 }, { id: "아라크네의 거미줄", count: 5 }, { id: "엔트의 줄기", count: 10 }, { id: "미스릴", count: 90 }] },
-	"엘름의 축복": { npc: "네루파", location: "요정의숲", materials:  [{ id: "요정족 가죽 투구", count: 1 }, { id: "고급 다이아몬드", count: 1 }, { id: "고급 에메랄드", count: 1 }, { id: "고급 사파이어", count: 1 }, { id: "마력의 돌", count: 5 }, { id: "오리하루콘 판금", count: 3 }, { id: "미스릴 실", count: 150 }] },
-	"요정족 방패": { npc: "네루파", location: "요정의숲", materials: [{ id: "나무방패", count: 1 }, { id: "미스릴 판금", count: 2 }, { id: "아라크네의 거미줄", count: 5 }] },
-	"요정족 창": { npc: "네루파", location: "요정의숲", materials: [{ id: "미스릴 도금 뿔", count: 1 }, { id: "엔트의 줄기", count: 10 }, { id: "아라크네의 거미줄", count: 30 }] },
-	"포챠드": { npc: "네루파", location: "요정의숲", materials: [{ id: "요정족 창", count: 1 }, { id: "오리하루콘 도금 뿔", count: 1 }, { id: "엔트의 줄기", count: 1 }, { id: "미스릴", count: 1 }] },
-	"메일 브레이커": { npc: "네루파", location: "요정의숲", materials: [{ id: "미스릴 도금 뿔", count: 1 }, { id: "엔트의 줄기", count: 10 }, { id: "아라크네의 거미줄", count: 50 }, { id: "오리하루콘", count: 60 }, { id: "고급 루비", count: 1 }] },
-	"나무 줄기 옷": { npc: "네루파", location: "요정의숲", materials: [{ id: "엔트의 줄기", count: 10 }, { id: "실", count: 6 }] },
-	"장궁": { npc: "네루파", location: "요정의숲", materials: [{ id: "오리하루콘 도금 뿔", count: 1 }, { id: "오리하루콘 판금", count: 6 },  { id: "고급 에메랄드", count: 2 },  { id: "고급 다이아몬드", count: 1 },  { id: "미스릴 실", count: 40 }, { id: "아라크네의 허물", count: 5 } ] },
+// // 🟢 2. 화면에 출력될 스탯의 '표준 순서'를 지정합니다.
+const STAT_ORDER = [
+  "종류",
+  "공격력(작은/큰)",
+  "방어력",
+  "한손/양손",
+  "클래스",
+  "무게",
+  "재질",
+  "인챈트",
+  "레벨 제한",
+  "손상 여부",
+];
 
-	"미스릴 도금 뿔": { npc: "브롭", location: "요정의던전2층", materials: [ { id: "미스릴", count: 80 }, { id: "판의 뿔", count: 2 }] },
-	"오리하루콘 도금 뿔": { npc: "브롭", location: "요정의던전2층", materials: [ { id: "오리하루콘", count: 80 }, { id: "루비", count: 3 }, { id: "판의 뿔", count: 4 }] },
-	"장검신": { npc: "브롭", location: "요정의던전2층", materials: [ { id: "페어리의 날개", count: 3 }, { id: "미스릴", count: 150 }] },
-	"단검신": { npc: "브롭", location: "요정의던전2층", materials: [ { id: "페어리의 날개", count: 1 }, { id: "미스릴", count: 50 }] },
-	"오리하루콘 검신": { npc: "브롭", location: "요정의던전2층", materials: [ { id: "페어리의 날개", count: 1 }, { id: "오리하루콘", count: 150 }, { id: "루비", count: 3 }] },
+// // 🟢 3. 아이템 탭에서 스탯으로 취급하지 않을 고정 시스템 컬럼들
+const ITEM_SYSTEM_COLS = ["ID", "이름", "아이콘", "이미지", "분류", "설명"];
 
-	"미스릴 판금": { npc: "판", location: "요정의숲", materials: [{ id: "아라크네의 허물", count: 1 }, { id: "미스릴", count: 50 }] },
-	"오리하루콘 판금": { npc: "판", location: "요정의숲", materials: [{ id: "아라크네의 허물", count: 1 }, { id: "오리하루콘", count: 30 }] },
-	"마법의 플룻": { npc: "나르엔", location: "요정의숲", materials: [{ id: "오리하루콘", count: 10 }, { id: "엔트의 껍질", count: 1 }] },
-	"판의 뿔": { npc: "판", location: "요정의숲", materials: [{ id: "마법의 플룻", count: 1 }] },
-	"미스릴 실": { npc: "아라크네", location: "요정의숲", materials: [{ id: "미스릴", count: 5 }, { id: "실", count: 1 }] },
-	"아라크네의 거미줄": { npc: "아라크네", location: "요정의숲", materials: [{ id: "엔트의 줄기", count: 2 }] },
-	"아라크네의 허물": { npc: "아라크네", location: "요정의숲", materials: [{ id: "엔트의 껍질", count: 3 }] },
-	"실": { npc: "아라크네", location: "요정의숲", materials: [{ id: "판의 갈기털", count: 1 }] },
-	"엘븐 와퍼": { npc: "루디엘", location: "요정의숲", materials: [{ id: "엔트의 열매", count: 1 }, { id: "페어리 더스트", count: 5 }] },
+function parseCSVRow(str) {
+  const result = [];
+  let current = "";
+  let inQuotes = false;
 
-	"강철 장갑": { npc: "헥터", location: "기란", materials: [{ id: "철괴", count: 150 }, { id: "장갑", count: 1 }, { id: "아데나", count: 25000 }] },
-	"강철 면갑": { npc: "헥터", location: "기란", materials: [{ id: "철괴", count: 120 }, { id: "기사의 면갑", count: 1 }, { id: "아데나", count: 16500 }] },
-	"강철 방패": { npc: "헥터", location: "기란", materials: [{ id: "철괴", count: 200 }, { id: "사각 방패", count: 1 }, { id: "아데나", count: 16000 }] },
-	"강철 부츠": { npc: "헥터", location: "기란", materials: [{ id: "철괴", count: 160 }, { id: "부츠", count: 1 }, { id: "아데나", count: 8000 }] },
-	"강철 판금 갑옷": { npc: "헥터", location: "기란", materials: [{ id: "철괴", count: 450 }, { id: "판금 갑옷", count: 1 }, { id: "아데나", count: 30000 }] },  
+  for (let i = 0; i < str.length; i++) {
+    const char = str[i];
+    if (char === '"') {
+      inQuotes = !inQuotes;
+    } else if (char === "," && !inQuotes) {
+      result.push(current.trim());
+      current = "";
+    } else {
+      current += char;
+    }
+  }
+  result.push(current.trim());
+  return result.map((s) => s.replace(/(^"|"$)/g, ""));
+}
 
-	"고급피혁": { npc: "빈센트", location: "기란", materials: [{ id: "동물가죽", count: 20 }] },
-	"가죽모자": { npc: "빈센트", location: "기란", materials: [{ id: "동물가죽", count: 5 }, { id: "철괴", count: 1 }] },
-	"가죽샌달": { npc: "빈센트", location: "기란", materials: [{ id: "동물가죽", count: 6 }, { id: "철괴", count: 2 }] },
-	"가죽조끼": { npc: "빈센트", location: "기란", materials: [{ id: "동물가죽", count: 10 }] },
-	"가죽방패": { npc: "빈센트", location: "기란", materials: [{ id: "동물가죽", count: 7 }] },
-	"가죽투구": { npc: "빈센트", location: "기란", materials: [{ id: "투구", count: 1 }, { id: "가죽모자", count: 1 }, { id: "철괴", count: 5 }, { id: "고급피혁", count: 5 }] },
-	"가죽부츠": { npc: "빈센트", location: "기란", materials: [{ id: "징박은 가죽샌달", count: 1 }, { id: "철괴", count: 10 }, { id: "고급피혁", count: 15 }, { id: "아데나", count: 300 }] },
-	"중갑가죽조끼": { npc: "빈센트", location: "기란", materials: [{ id: "징박은 가죽조끼", count: 1 }, { id: "철괴", count: 15 }, { id: "고급피혁", count: 15 }] },
-	"벨트": { npc: "빈센트", location: "기란", materials: [{ id: "철괴", count: 2 }, { id: "고급피혁", count: 5 }] },
-	"벨트달린 가죽조끼": { npc: "빈센트", location: "기란", materials: [{ id: "가죽조끼", count: 1 }, { id: "벨트", count: 1 }] },
-	"징박은 가죽모자": { npc: "핀", location: "은기사", materials: [{ id: "가죽모자", count: 1 }, { id: "철괴", count: 10 }, { id: "고급피혁", count: 2 }] },
-	"징박은 가죽샌달": { npc: "핀", location: "은기사", materials: [{ id: "가죽샌달", count: 1 }, { id: "철괴", count: 12 }, { id: "고급피혁", count: 3 }] },
-	"징박은 가죽조끼": { npc: "핀", location: "은기사", materials: [{ id: "가죽조끼", count: 1 }, { id: "철괴", count: 10 }, { id: "고급피혁", count: 2 }] },
-	"징박은 가죽방패": { npc: "핀", location: "은기사", materials: [{ id: "가죽방패", count: 1 }, { id: "철괴", count: 20 }, { id: "고급피혁", count: 5 }] },
-	
-	"수중 부츠": { npc: "에브롤", location: "에바의신전", materials: [{ id: "부츠", count: 1 }, { id: "빛나는 비늘", count: 30 }, { id: "인어의 비늘", count: 30 }] },
-	"에바의 축복": { npc: "에브롤", location: "에바의신전", materials: [{ id: "아데나", count: 330 }] },
-	"에바의 방패": { npc: "에브롤", location: "에바의신전", materials: [{ id: "사각 방패", count: 1 }, { id: "인어의 비늘", count: 100 }, { id: "수룡 비늘", count: 10 }] },
+// // 🟢 4. 아이템 시트(무기, 방어구, 장신구, 재료 4개) 전용 처리 엔진
+// 🟢 아이템 시트(무기, 방어구, 장신구, 재료 4개) 전용 처리 엔진
+async function processItemSheet(url, categoryName) {
+  if (!url || url.includes("CSV_링크를_넣어주세요")) return;
+  const response = await fetch(url);
+  const csvText = await response.text();
 
-	"티셔츠": { npc: "허버트", location: "기란", materials: [{ id: "하얀 옷감", count: 10 }, { id: "파란 옷감", count: 2 }, { id: "붉은 옷감", count: 3 }, { id: "아데나", count: 30000 }] },
-	"마법 망토": { npc: "허버트", location: "기란", materials: [{ id: "하얀 옷감", count: 2 }, { id: "파란 옷감", count: 2 }, { id: "붉은 옷감", count: 10 }, { id: "아데나", count: 1000 }] },
-	"보호 망토": { npc: "허버트", location: "기란", materials: [{ id: "하얀 옷감", count: 10 }, { id: "파란 옷감", count: 5 }, { id: "붉은 옷감", count: 5 }, { id: "아데나", count: 20000 }] },
-	
-	"마법사 모자": { npc: "모리아", location: "기란", materials: [{ id: "고급 에메랄드", count: 2 }, { id: "마력의 돌", count: 20 }, { id: "하얀 옷감", count: 1 }, { id: "파란 옷감", count: 1 }, { id: "붉은 옷감", count: 1 }] },
-	"마법사 옷": { npc: "모리아", location: "기란", materials: [{ id: "최고급 사파이어", count: 1 }, { id: "마력의 돌", count: 25 }, { id: "하얀 옷감", count: 2 }, { id: "파란 옷감", count: 4 }] },	
-	
-	"싸울아비 장검": { npc: "이벨빈", location: "웰던의성", materials: [{ id: "화룡 비늘", count: 3 }, { id: "오리하루콘", count: 500 }, { id: "최고급 다이아몬드", count: 5 }, { id: "최고급 에메랄드", count: 5 }, { id: "최고급 사파이어", count: 5 }, { id: "최고급 루비", count: 5 }, { id: "아시타지오의 재", count: 300 }] },
-	"지룡 비늘 갑옷": { npc: "이벨빈", location: "웰던의성", materials: [{ id: "지룡 비늘", count: 15 }, { id: "오리하루콘", count: 1000 }, { id: "미스릴 실", count: 500 }, { id: "최고급 다이아몬드", count: 3 }, { id: "최고급 에메랄드", count: 3 }, { id: "최고급 사파이어", count: 3 }, { id: "최고급 루비", count: 3 }, { id: "아시타지오의 재", count: 150 }] },
-	"수룡 비늘 갑옷": { npc: "이벨빈", location: "웰던의성", materials: [{ id: "수룡 비늘", count: 15 }, { id: "오리하루콘", count: 1000 }, { id: "미스릴 실", count: 500 }, { id: "최고급 다이아몬드", count: 3 }, { id: "최고급 에메랄드", count: 3 }, { id: "최고급 사파이어", count: 3 }, { id: "최고급 루비", count: 3 }, { id: "아시타지오의 재", count: 150 }] },
-	"화룡 비늘 갑옷": { npc: "이벨빈", location: "웰던의성", materials: [{ id: "화룡 비늘", count: 15 }, { id: "오리하루콘", count: 1000 }, { id: "미스릴 실", count: 500 }, { id: "최고급 다이아몬드", count: 3 }, { id: "최고급 에메랄드", count: 3 }, { id: "최고급 사파이어", count: 3 }, { id: "최고급 루비", count: 3 }, { id: "아시타지오의 재", count: 150 }] },
-	"풍룡 비늘 갑옷": { npc: "이벨빈", location: "웰던의성", materials: [{ id: "풍룡 비늘", count: 15 }, { id: "오리하루콘", count: 1000 }, { id: "미스릴 실", count: 500 }, { id: "최고급 다이아몬드", count: 3 }, { id: "최고급 에메랄드", count: 3 }, { id: "최고급 사파이어", count: 3 }, { id: "최고급 루비", count: 3 }, { id: "아시타지오의 재", count: 150 }] },
-	
-	"신체의 벨트": { npc: "류미엘", location: "하이네", materials: [{ id: "낡은 신체의 벨트", count: 1 }, { id: "빛나는 비늘", count: 20 }, { id: "다이아몬드", count: 30 }, { id: "에메랄드", count: 30 }, { id: "사파이어", count: 30 }, { id: "루비", count: 30 },{ id: "아데나", count: 50000 }] },
-	"정신의 벨트": { npc: "류미엘", location: "하이네", materials: [{ id: "낡은 정신의 벨트", count: 1 }, { id: "빛나는 비늘", count: 20 }, { id: "다이아몬드", count: 30 }, { id: "에메랄드", count: 30 }, { id: "사파이어", count: 30 }, { id: "루비", count: 30 },{ id: "아데나", count: 50000 }] },
-	"영혼의 벨트": { npc: "류미엘", location: "하이네", materials: [{ id: "낡은 영혼의 벨트", count: 1 }, { id: "빛나는 비늘", count: 20 }, { id: "다이아몬드", count: 30 }, { id: "에메랄드", count: 30 }, { id: "사파이어", count: 30 }, { id: "루비", count: 30 },{ id: "아데나", count: 50000 }] },
-	"빛나는 신체의 벨트": { npc: "류미엘", location: "하이네", materials: [{ id: "신체의 벨트", count: 1 }, { id: "빛나는 비늘", count: 50 }, { id: "고급 다이아몬드", count: 20 }, { id: "고급 에메랄드", count: 20 }, { id: "고급 사파이어", count: 20 }, { id: "고급 루비", count: 20 },{ id: "아데나", count: 100000 }] },
-	"빛나는 정신의 벨트": { npc: "류미엘", location: "하이네", materials: [{ id: "정신의 벨트", count: 1 }, { id: "빛나는 비늘", count: 50 }, { id: "고급 다이아몬드", count: 20 }, { id: "고급 에메랄드", count: 20 }, { id: "고급 사파이어", count: 20 }, { id: "고급 루비", count: 20 },{ id: "아데나", count: 100000 }] },
-	"빛나는 영혼의 벨트": { npc: "류미엘", location: "하이네", materials: [{ id: "영혼의 벨트", count: 1 }, { id: "빛나는 비늘", count: 50 }, { id: "고급 다이아몬드", count: 20 }, { id: "고급 에메랄드", count: 20 }, { id: "고급 사파이어", count: 20 }, { id: "고급 루비", count: 20 },{ id: "아데나", count: 100000 }] },
-	
-};
+  const rows = csvText.split("\n");
+  const headers = parseCSVRow(rows[0]);
+
+  rows.slice(1).forEach((row) => {
+    if (!row.trim()) return;
+    const values = parseCSVRow(row);
+    const rowData = {};
+    headers.forEach((h, i) => (rowData[h.trim()] = values[i] || ""));
+
+    const id = rowData["ID"];
+    if (!id) return;
+
+    let stats = [];
+    headers.forEach((h) => {
+      const key = h.trim();
+      let val = rowData[key]; // 🟢 값을 변경할 수 있도록 const 대신 let 사용
+
+      // 🟢 '클래스' 컬럼이 비어있을 경우 '모두'로 자동 설정하는 로직 추가
+      if (key === "클래스" && val === "") {
+        val = "모두";
+      }
+
+      if (!ITEM_SYSTEM_COLS.includes(key) && val !== "") {
+        if (key === "옵션") {
+          const mergedOptions = val
+            .split(",")
+            .map((opt) => opt.trim())
+            .join("<br>");
+          stats.push({ label: "옵션", value: mergedOptions });
+        } else {
+          stats.push({ label: key, value: val });
+        }
+      }
+    });
+
+    stats.sort((a, b) => {
+      let indexA = STAT_ORDER.indexOf(a.label);
+      let indexB = STAT_ORDER.indexOf(b.label);
+      if (indexA === -1) indexA = 999;
+      if (indexB === -1) indexB = 999;
+      return indexA - indexB;
+    });
+
+    items_db[id] = {
+      id: id,
+      name: rowData["이름"] || id,
+      category: categoryName,
+      type: rowData["분류"] || "",
+      desc: rowData["설명"] || "",
+      icon: rowData["아이콘"] || "",
+      image: rowData["이미지"] || "",
+      stats: stats.length > 0 ? stats : undefined,
+    };
+  });
+}
+
+async function processRecipeSheet(url) {
+  if (!url || url.includes("CSV_링크를_넣어주세요")) return;
+
+  // 🔴 삭제: 기존 우회 프록시 통신 코드 제거
+  // const proxyUrl = "https://api.allorigins.win/raw?url=" + encodeURIComponent(url);
+  // const response = await fetch(proxyUrl);
+
+  // 🟢 추가: 다이렉트 통신으로 수정 (로컬 서버 환경 최적화)
+  const response = await fetch(url);
+  const csvText = await response.text();
+
+  const rows = csvText.split("\n");
+  const headers = parseCSVRow(rows[0]);
+
+  rows.slice(1).forEach((row) => {
+    if (!row.trim()) return;
+    const values = parseCSVRow(row);
+    const rowData = {};
+    headers.forEach((h, i) => (rowData[h.trim()] = values[i] || ""));
+
+    const id = rowData["ID"]; // 제작 결과물 ID
+    if (!id) return;
+
+    const materialsStr = rowData["재료"];
+    if (!materialsStr) return;
+
+    recipes_db[id] = {
+      npc: rowData["NPC"] || "",
+      location: rowData["장소"] || "",
+      yield: parseInt(rowData["제작수량"]) || 1,
+      materials: materialsStr.split(",").map((mat) => {
+        const parts = mat.split(":");
+        return { id: parts[0].trim(), count: parseInt(parts[1]) || 1 };
+      }),
+    };
+  });
+}
+
+// // 🟢 6. 총 5개의 시트를 Promise.all을 통해 동시 다발적으로 로드합니다.
+async function loadDatabaseFromSheet() {
+  try {
+    const itemPromises = Object.entries(CSV_LINKS)
+      .filter(([cat]) => cat !== "recipe")
+      .map(([cat, url]) => processItemSheet(url, cat));
+
+    const recipePromise = processRecipeSheet(CSV_LINKS.recipe);
+
+    // 모든 다운로드와 파싱이 완료될 때까지 대기
+    await Promise.all([...itemPromises, recipePromise]);
+
+    console.log("✅ 5개 탭 분리 데이터베이스 정규화 로드 완료:", items_db, recipes_db);
+    return true;
+  } catch (error) {
+    console.error("🚨 데이터베이스 로드 중 오류 발생:", error);
+    alert("데이터베이스를 불러올 수 없습니다. 인터넷 연결이나 5개의 탭 주소를 확인하세요.");
+    return false;
+  }
+}
